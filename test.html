@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Digital Garden For You 💕</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, 
+                #0f0c29 0%, 
+                #24243e 25%,
+                #302b63 50%,
+                #0f0c29 75%,
+                #24243e 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        canvas {
+            display: block;
+            position: relative;
+            z-index: 5;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffffff 0%, transparent 70%);
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #fff, transparent);
+            border-radius: 50%;
+            animation: shoot 4s linear infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes shoot {
+            0% { 
+                transform: translateX(-100px) translateY(100px); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateX(100vw) translateY(-100px); 
+                opacity: 0; 
+            }
+        }
+
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: all 0.8s ease;
+        }
+
+        .welcome-content {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            padding: 40px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes textGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .welcome-message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .enter-btn {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .enter-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 1s ease 2s;
+        }
+
+        .controls.show {
+            opacity: 1;
+        }
+
+        .control-btn {
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            user-select: none;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            z-index: 10;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.4rem;
+            opacity: 0;
+            transition: opacity 1s ease 3s;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .instructions.show {
+            opacity: 1;
+        }
+
+        .message-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px 40px;
+            color: white;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            text-align: center;
+            z-index: 50;
+            opacity: 0;
+            transition: all 0.5s ease;
+            pointer-events: none;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message-display.show {
+            opacity: 1;
+        }
+
+        .floating-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff6b6b;
+            font-size: 20px;
+            opacity: 0.6;
+            animation: floatUp 6s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .music-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .music-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        /* Styles for the confession overlay */
+        .confession-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 110;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .confession-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .confession-content {
+            text-align: center;
+            color: white;
+            max-width: 700px;
+            padding: 40px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            animation: fadeInScale 1s ease-out;
+            position: relative;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .confession-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8rem;
+            margin-bottom: 25px;
+            color: #ffb8b8; /* A soft, romantic pink */
+        }
+
+        .confession-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            opacity: 0.95;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.2);
+        }
+
+
+        @media (max-width: 768px) {
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+            
+            .welcome-message {
+                font-size: 1rem;
+            }
+            
+            .controls {
+                top: 10px;
+                right: 10px;
+                gap: 10px;
+            }
+            
+            .control-btn {
+                padding: 10px 14px;
+                font-size: 0.8rem;
+            }
+
+            .confession-title {
+                font-size: 2rem;
+            }
+
+            .confession-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Overlay -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-content">
+            <h1 class="welcome-title">A Digital Garden</h1>
+            <p class="welcome-message">
+                I created this magical garden just for you ✨<br>
+                Each flower blooms with love, and every click plants a new dream.<br>
+                This is my way of showing you how much you mean to me.
+            </p>
+            <button class="enter-btn" id="enterBtn">Enter Our Garden 🌸</button>
+        </div>
+    </div>
+    
+    <!-- Confession Overlay -->
+    <div class="confession-overlay" id="confessionOverlay">
+        <div class="confession-content">
+            <button class="close-btn" id="closeConfessionBtn">&times;</button>
+            <h2 class="confession-title">For You, My Dearest Maria</h2>
+            <p class="confession-text">
+                Maria, I love you dear. Life has never been easy for you. The difficult moments that you have to go through alone are far more than breaking for me to just watch you let you do so. I know you are my little knucklehead. But if there is anything that I am requesting you it would be to let me also be the one to accompany in your adventures of emotions, tantrums, mood swings, everything of your precious moments is simply what how I would like to accompany during this long distance hubbiness, bff(best friend forever), your gossip partner, your punch ball, etc etc... Oi, and dont worry even though I am not physically much strong as a body builder, I am the strongest in terms of handling you deary. Ummaaaaa. I love you the mostestestest!!!!!!!!!!!!!!
+            </p>
+        </div>
+    </div>
+
+
+    <!-- Background Elements -->
+    <div class="stars" id="stars"></div>
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <!-- Main Canvas -->
+    <canvas id="flowerCanvas"></canvas>
+
+    <!-- Controls -->
+    <div class="controls" id="controls">
+        <div class="control-btn" id="noteBtn">A Note For You 📜</div>
+        <div class="control-btn" id="clearBtn">Clear Garden 🗑️</div>
+        <div class="control-btn" id="rainbowBtn">Rainbow Mode 🌈</div>
+        <div class="control-btn" id="screenshotBtn">Save Garden 📸</div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions" id="instructions">
+        Click anywhere to plant a flower 🌸 Hold for continuous blooming ✨
+    </div>
+
+    <!-- Message Display -->
+    <div class="message-display" id="messageDisplay"></div>
+
+    <!-- Music Toggle -->
+    <div class="music-toggle" id="musicToggle">🎵</div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('flowerCanvas');
+        const ctx = canvas.getContext('2d');
+        let animationId;
+        let flowers = [];
+        let rainbowMode = false;
+        let isMouseDown = false;
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        // Audio context (will be created after user interaction)
+        let audioContext;
+        let musicPlaying = false;
+        let music;
+
+        // Resize canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Create enhanced starry background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            
+            // Regular stars
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                starsContainer.appendChild(star);
+            }
+
+            // Shooting stars
+            setInterval(() => {
+                const shootingStar = document.createElement('div');
+                shootingStar.className = 'shooting-star';
+                shootingStar.style.top = Math.random() * 30 + '%';
+                shootingStar.style.left = '-100px';
+                starsContainer.appendChild(shootingStar);
+                
+                setTimeout(() => {
+                    if (shootingStar.parentNode) {
+                        shootingStar.parentNode.removeChild(shootingStar);
+                    }
+                }, 4000);
+            }, 8000);
+        }
+
+        // Create floating hearts
+        function createFloatingHeart() {
+            const heartsContainer = document.getElementById('floatingHearts');
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '♥';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.animationDelay = Math.random() * 2 + 's';
+            heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+            heartsContainer.appendChild(heart);
+
+            setTimeout(() => {
+                if (heart.parentNode) {
+                    heart.parentNode.removeChild(heart);
+                }
+            }, 6000);
+        }
+
+        // Enhanced Flower class
+        class Flower {
+            constructor(x, y, isRainbow = false) {
+                this.x = x;
+                this.y = y;
+                this.stemHeight = 0;
+                this.maxStemHeight = Math.random() * 120 + 80;
+                this.petalCount = Math.floor(Math.random() * 4) + 6;
+                this.petalSize = 0;
+                this.maxPetalSize = Math.random() * 25 + 20;
+                this.centerSize = 0;
+                this.maxCenterSize = Math.random() * 6 + 8;
+                this.leafSize = 0;
+                this.maxLeafSize = Math.random() * 15 + 12;
+                this.animationStep = 0;
+                this.glowIntensity = 0;
+                this.sparkles = [];
+                this.isRainbow = isRainbow;
+                this.hue = Math.random() * 360;
+                this.color = this.getColor();
+                this.swayAngle = 0;
+                this.completed = false;
+                
+                // Create initial sparkles
+                for (let i = 0; i < 8; i++) {
+                    this.sparkles.push({
+                        x: Math.random() * 40 - 20,
+                        y: Math.random() * 40 - 20,
+                        size: Math.random() * 3 + 1,
+                        opacity: Math.random(),
+                        speed: Math.random() * 0.02 + 0.01
+                    });
+                }
+            }
+
+            getColor() {
+                if (this.isRainbow) {
+                    return { h: this.hue, s: 80, l: 60 };
+                }
+                
+                const romanticColors = [
+                    { r: 255, g: 182, b: 193 }, // Light pink
+                    { r: 255, g: 105, b: 180 }, // Hot pink
+                    { r: 221, g: 160, b: 221 }, // Plum
+                    { r: 255, g: 20, b: 147 },  // Deep pink
+                    { r: 255, g: 192, b: 203 }, // Pink
+                    { r: 238, g: 130, b: 238 }, // Violet
+                    { r: 255, g: 218, b: 185 }, // Peach
+                    { r: 255, g: 240, b: 245 }, // Lavender blush
+                ];
+                return romanticColors[Math.floor(Math.random() * romanticColors.length)];
+            }
+
+            update() {
+                if (this.animationStep < 400) {
+                    this.animationStep += 1.5;
+                    
+                    // Grow stem
+                    if (this.animationStep < 80) {
+                        this.stemHeight = this.easeOutQuart(this.animationStep / 80) * this.maxStemHeight;
+                    } else {
+                        this.stemHeight = this.maxStemHeight;
+                    }
+
+                    // Grow leaves
+                    if (this.animationStep > 40 && this.animationStep < 120) {
+                        const progress = (this.animationStep - 40) / 80;
+                        this.leafSize = this.easeOutBounce(progress) * this.maxLeafSize;
+                    } else if (this.animationStep >= 120) {
+                        this.leafSize = this.maxLeafSize;
+                    }
+
+                    // Grow petals
+                    if (this.animationStep > 80 && this.animationStep < 200) {
+                        const progress = (this.animationStep - 80) / 120;
+                        this.petalSize = this.easeOutBounce(progress) * this.maxPetalSize;
+                    } else if (this.animationStep >= 200) {
+                        this.petalSize = this.maxPetalSize;
+                    }
+
+                    // Grow center
+                    if (this.animationStep > 140 && this.animationStep < 220) {
+                        const progress = (this.animationStep - 140) / 80;
+                        this.centerSize = this.easeOutElastic(progress) * this.maxCenterSize;
+                    } else if (this.animationStep >= 220) {
+                        this.centerSize = this.maxCenterSize;
+                    }
+
+                    // Glow effect
+                    if (this.animationStep > 180) {
+                        this.glowIntensity = Math.min(1, (this.animationStep - 180) / 100);
+                    }
+                } else {
+                    this.completed = true;
+                }
+
+                // Gentle swaying animation
+                this.swayAngle += 0.01;
+                
+                // Update rainbow hue
+                if (this.isRainbow) {
+                    this.hue = (this.hue + 1) % 360;
+                }
+
+                // Update sparkles
+                this.sparkles.forEach(sparkle => {
+                    sparkle.opacity = 0.3 + Math.sin(Date.now() * sparkle.speed) * 0.7;
+                });
+
+                // Breathing glow for completed flowers
+                if (this.completed) {
+                    this.glowIntensity = 0.5 + Math.sin(Date.now() * 0.002) * 0.5;
+                }
+            }
+
+            easeOutQuart(t) {
+                return 1 - Math.pow(1 - t, 4);
+            }
+
+            easeOutBounce(t) {
+                if (t < 1 / 2.75) {
+                    return 7.5625 * t * t;
+                } else if (t < 2 / 2.75) {
+                    return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+                } else if (t < 2.5 / 2.75) {
+                    return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+                } else {
+                    return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+                }
+            }
+
+            easeOutElastic(t) {
+                const c4 = (2 * Math.PI) / 3;
+                return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+            }
+
+            draw() {
+                ctx.save();
+
+                const flowerX = this.x + Math.sin(this.swayAngle) * 2;
+                const flowerY = this.y - this.stemHeight;
+
+                // Draw stem with sway
+                if (this.stemHeight > 0) {
+                    const gradient = ctx.createLinearGradient(this.x, this.y, flowerX, flowerY);
+                    gradient.addColorStop(0, '#2e7d32');
+                    gradient.addColorStop(0.5, '#4caf50');
+                    gradient.addColorStop(1, '#66bb6a');
+                    
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = 4;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    
+                    // Curved stem for natural look
+                    const midY = this.y - this.stemHeight * 0.5;
+                    const midX = this.x + Math.sin(this.swayAngle * 0.5) * 1;
+                    ctx.quadraticCurveTo(midX, midY, flowerX, flowerY);
+                    ctx.stroke();
+                }
+
+                // Draw leaves with sway
+                if (this.leafSize > 0) {
+                    const leafY = this.y - this.stemHeight * 0.4;
+                    const leafX = this.x + Math.sin(this.swayAngle * 0.3) * 1;
+                    this.drawLeaf(leafX - 12, leafY, -Math.PI/4 + Math.sin(this.swayAngle) * 0.1);
+                    this.drawLeaf(leafX + 12, leafY - 8, Math.PI/4 - Math.sin(this.swayAngle) * 0.1);
+                }
+
+                // Draw sparkles around completed flowers
+                if (this.completed && this.glowIntensity > 0.5) {
+                    this.sparkles.forEach(sparkle => {
+                        ctx.save();
+                        ctx.globalAlpha = sparkle.opacity * 0.8;
+                        ctx.fillStyle = '#ffffff';
+                        ctx.beginPath();
+                        ctx.arc(
+                            flowerX + sparkle.x,
+                            flowerY + sparkle.y,
+                            sparkle.size,
+                            0, Math.PI * 2
+                        );
+                        ctx.fill();
+                        ctx.restore();
+                    });
+                }
+
+                // Draw petals with enhanced effects
+                if (this.petalSize > 0) {
+                    ctx.shadowBlur = 25 * this.glowIntensity;
+                    
+                    if (this.isRainbow) {
+                        ctx.shadowColor = `hsl(${this.hue}, 80%, 60%)`;
+                    } else {
+                        ctx.shadowColor = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.glowIntensity})`;
+                    }
+
+                    for (let i = 0; i < this.petalCount; i++) {
+                        const angle = (i / this.petalCount) * Math.PI * 2 + Math.sin(this.swayAngle) * 0.05;
+                        this.drawPetal(flowerX, flowerY, angle);
+                    }
+
+                    // Draw center with gradient
+                    if (this.centerSize > 0) {
+                        const centerGradient = ctx.createRadialGradient(
+                            flowerX, flowerY, 0,
+                            flowerX, flowerY, this.centerSize
+                        );
+                        centerGradient.addColorStop(0, '#fff59d');
+                        centerGradient.addColorStop(0.6, '#ffcc02');
+                        centerGradient.addColorStop(1, '#ff8f00');
+                        
+                        ctx.fillStyle = centerGradient;
+                        ctx.beginPath();
+                        ctx.arc(flowerX, flowerY, this.centerSize, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Add center highlight
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                        ctx.beginPath();
+                        ctx.arc(flowerX - this.centerSize * 0.3, flowerY - this.centerSize * 0.3, this.centerSize * 0.3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                ctx.restore();
+            }
+
+            drawPetal(centerX, centerY, angle) {
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle);
+
+                let fillStyle;
+                if (this.isRainbow) {
+                    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.petalSize);
+                    gradient.addColorStop(0, `hsla(${this.hue}, 80%, 70%, 0.9)`);
+                    gradient.addColorStop(0.7, `hsla(${(this.hue + 30) % 360}, 70%, 60%, 0.7)`);
+                    gradient.addColorStop(1, `hsla(${(this.hue + 60) % 360}, 60%, 50%, 0.4)`);
+                    fillStyle = gradient;
+                } else {
+                    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.petalSize);
+                    gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.9)`);
+                    gradient.addColorStop(0.7, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.7)`);
+                    gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0.3)`);
+                    fillStyle = gradient;
+                }
+                
+                ctx.fillStyle = fillStyle;
+                ctx.beginPath();
+                
+                // More natural petal shape
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(
+                    -this.petalSize * 0.3, -this.petalSize * 0.8,
+                    this.petalSize * 0.3, -this.petalSize * 0.8,
+                    0, -this.petalSize
+                );
+                ctx.bezierCurveTo(
+                    this.petalSize * 0.2, -this.petalSize * 0.6,
+                    this.petalSize * 0.2, -this.petalSize * 0.2,
+                    0, 0
+                );
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            drawLeaf(x, y, angle) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+
+                const leafGradient = ctx.createLinearGradient(0, 0, 0, this.leafSize);
+                leafGradient.addColorStop(0, '#81c784');
+                leafGradient.addColorStop(0.5, '#4caf50');
+                leafGradient.addColorStop(1, '#2e7d32');
+
+                ctx.fillStyle = leafGradient;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.leafSize * 0.4, this.leafSize, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Leaf vein
+                ctx.strokeStyle = 'rgba(46, 125, 50, 0.6)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, -this.leafSize * 0.8);
+                ctx.lineTo(0, this.leafSize * 0.8);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            flowers.forEach(flower => {
+                flower.update();
+                flower.draw();
+            });
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Create flower at position
+        function createFlower(x, y) {
+            const groundY = canvas.height - Math.random() * 100 - 50;
+            flowers.push(new Flower(x, groundY, rainbowMode));
+            createFloatingHeart();
+        }
+
+        // Event handlers
+        function setupEventListeners() {
+            // Mouse events
+            canvas.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                const rect = canvas.getBoundingClientRect();
+                mouseX = e.clientX - rect.left;
+                mouseY = e.clientY - rect.top;
+                createFlower(mouseX, mouseY);
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isMouseDown) {
+                    const rect = canvas.getBoundingClientRect();
+                    mouseX = e.clientX - rect.left;
+                    mouseY = e.clientY - rect.top;
+                    
+                    // Create flower every 50ms when dragging
+                    if (Math.random() < 0.3) {
+                        createFlower(mouseX, mouseY);
+                    }
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                isMouseDown = false;
+            });
+
+            // Touch events for mobile
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevent scrolling
+                isMouseDown = true;
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                mouseX = touch.clientX - rect.left;
+                mouseY = touch.clientY - rect.top;
+                createFlower(mouseX, mouseY);
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (isMouseDown) {
+                    const touch = e.touches[0];
+                    const rect = canvas.getBoundingClientRect();
+                    mouseX = touch.clientX - rect.left;
+                    mouseY = touch.clientY - rect.top;
+                    
+                    if (Math.random() < 0.3) {
+                        createFlower(mouseX, mouseY);
+                    }
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', () => {
+                isMouseDown = false;
+            });
+            
+            canvas.addEventListener('touchcancel', () => {
+                isMouseDown = false;
+            });
+
+            // Welcome screen button
+            const enterBtn = document.getElementById('enterBtn');
+            const welcomeOverlay = document.getElementById('welcomeOverlay');
+            const controls = document.getElementById('controls');
+            const instructions = document.getElementById('instructions');
+
+            enterBtn.addEventListener('click', () => {
+                welcomeOverlay.style.opacity = '0';
+                welcomeOverlay.style.pointerEvents = 'none';
+                
+                // Initialize audio on first user interaction
+                if (!audioContext) {
+                    setupMusic();
+                }
+
+                setTimeout(() => {
+                    controls.classList.add('show');
+                    instructions.classList.add('show');
+                }, 800);
+            });
+            
+            // Confession note events
+            const confessionOverlay = document.getElementById('confessionOverlay');
+            document.getElementById('noteBtn').addEventListener('click', () => {
+                confessionOverlay.classList.add('show');
+            });
+            document.getElementById('closeConfessionBtn').addEventListener('click', () => {
+                confessionOverlay.classList.remove('show');
+            });
+
+
+            // Control buttons
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                flowers = [];
+                showMessage('Garden cleared... ready for new dreams. 🗑️');
+            });
+
+            document.getElementById('rainbowBtn').addEventListener('click', (e) => {
+                rainbowMode = !rainbowMode;
+                e.target.textContent = rainbowMode ? 'Romantic Mode 💖' : 'Rainbow Mode 🌈';
+                showMessage(rainbowMode ? 'Rainbow magic activated! 🌈' : 'Back to romantic hues. 💖');
+            });
+
+            document.getElementById('screenshotBtn').addEventListener('click', saveGarden);
+
+            // Music toggle
+            document.getElementById('musicToggle').addEventListener('click', toggleMusic);
+        }
+
+        // Display a temporary message
+        function showMessage(text) {
+            const messageDisplay = document.getElementById('messageDisplay');
+            messageDisplay.textContent = text;
+            messageDisplay.classList.add('show');
+            setTimeout(() => {
+                messageDisplay.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Save canvas as an image
+        function saveGarden() {
+            const link = document.createElement('a');
+            link.download = 'Our-Digital-Garden.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showMessage('Our garden has been saved! 📸');
+        }
+
+        // Music setup
+        function setupMusic() {
+            // IMPORTANT: Replace 'her-favorite-song.mp3' with the actual filename of the music.
+            // Make sure the audio file is in the same folder as this HTML file.
+            const musicSrc = 'her-favorite-song.mp3';
+            music = new Audio(musicSrc);
+            music.loop = true;
+            music.volume = 0.5;
+
+            // Create AudioContext after user has interacted with the page
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaElementSource(music);
+            source.connect(audioContext.destination);
+        }
+
+        // Toggle music play/pause
+        function toggleMusic() {
+            if (!music) {
+                showMessage('Please enter the garden first to enable music!');
+                return;
+            }
+            
+            // Resume AudioContext if it was suspended
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            const musicToggleBtn = document.getElementById('musicToggle');
+            if (musicPlaying) {
+                music.pause();
+                musicToggleBtn.innerHTML = '🎵';
+                showMessage('Music paused. The garden is quiet.');
+            } else {
+                music.play().catch(e => console.error("Music play failed:", e));
+                musicToggleBtn.innerHTML = '🔇';
+                showMessage('Our song is playing...');
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        // Initialization function
+        function init() {
+            createStars();
+            setInterval(createFloatingHeart, 2000);
+            setupEventListeners();
+            animate();
+        }
+
+        // Run the app
+        init();
+    </script>
+</body>
+</html>
